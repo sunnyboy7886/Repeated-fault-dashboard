@@ -395,7 +395,6 @@ if selected == "Dashboard":
         current_month = 12
         previuos_month = 11
     
-    st.write(current_month)
     
     # Calculate MoM sum of Frequency deviation
     current_month_sum_of_freq = df2['Frequency'][df2['Month_number']==(current_month)].sum()
