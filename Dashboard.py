@@ -38,46 +38,72 @@ with open('style.css') as f:
 #  Reading excel file and caching the file
 
 @st.cache_data
-def read_csv_file():
-    select_file= 'Repeated fault 2023.csv'
-    df = pd.read_csv(select_file, encoding='ISO-8859-1', dtype={'Main code' : object, 'Sub code' : object, 'Frequency': int})
+def read_csv_file1():
+    select_file= 'Repeated fault 2021.csv'
+    df1 = pd.read_csv(select_file, encoding='ISO-8859-1', dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
     #  convert duration object type into int type into Hour, Min and sec column
 
-    df['Hour'] = pd.to_datetime(df['Duration'],format=('%H:%M:%S')).dt.hour
-    df['Min'] = pd.to_datetime(df['Duration'],format=('%H:%M:%S')).dt.minute
-    df['Sec'] = pd.to_datetime(df['Duration'],format=('%H:%M:%S')).dt.second
+    df1['Hour'] = pd.to_datetime(df1['Duration'],format=('%H:%M:%S')).dt.hour
+    df1['Min'] = pd.to_datetime(df1['Duration'],format=('%H:%M:%S')).dt.minute
+    df1['Sec'] = pd.to_datetime(df1['Duration'],format=('%H:%M:%S')).dt.second
+    
+    return df1
 
-    #  convert Main code and Status code from object type into int type
-    return df
+@st.cache_data
+def read_csv_file2():
+    select_file = 'Repeated fault 2022.csv'
+    df2 = pd.read_csv(select_file,encoding='ISO-8859-1', dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
+    #  convert duration object type into int type into Hour, Min and sec column
+
+    df2['Hour'] = pd.to_datetime(df2['Duration'],format=('%H:%M:%S')).dt.hour
+    df2['Min'] = pd.to_datetime(df2['Duration'],format=('%H:%M:%S')).dt.minute
+    df2['Sec'] = pd.to_datetime(df2['Duration'],format=('%H:%M:%S')).dt.second
+
+    return df2
+
+@st.cache_data
+def read_csv_file3():
+    select_file = 'Repeated fault 2023.csv'
+    df3 = pd.read_csv(select_file,encoding='ISO-8859-1', dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
+    #  convert duration object type into int type into Hour, Min and sec column
+
+    df3['Hour'] = pd.to_datetime(df3['Duration'],format=('%H:%M:%S')).dt.hour
+    df3['Min'] = pd.to_datetime(df3['Duration'],format=('%H:%M:%S')).dt.minute
+    df3['Sec'] = pd.to_datetime(df3['Duration'],format=('%H:%M:%S')).dt.second
+
+    return df3
+
+@st.cache_data
+def read_csv_file4():
+    select_file = 'Repeated fault 2024.csv'
+    df4 = pd.read_csv(select_file,encoding='ISO-8859-1',dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
+    #  convert duration object type into int type into Hour, Min and sec column
+
+    df4['Hour'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.hour
+    df4['Min'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.minute
+    df4['Sec'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.second
+
+    return df4
 
 @st.cache_data
 def read_area_wec_file():
     PAN_India_wec_df = pd.read_csv('Area wise wec.csv')
     return PAN_India_wec_df
 
-    
-
-df = read_csv_file()
+df1 = read_csv_file1()
+df2 = read_csv_file2()
+df3 = read_csv_file3()
+df4 = read_csv_file4()
 PAN_India_wec_df = read_area_wec_file()
+
+df = pd.concat([df1,df2,df3,df4],axis=0,ignore_index=True)
 
 df['StatusCode'] = df['Main code'].str.cat(df['Sub code'], sep=':')
 
-month_mapping = { 'Jan': 1,'Feb':2,'Mar':3, 'Apr': 4,'May': 5, 'Jun': 6, 'Jul': 7, 'Aug' :8 , 'Sept': 9 , 'Oct': 10, 'Nov': 11, 'Dec': 12}
+month_mapping = { 'Jan': 1,'Feb':2,'Mar':3, 'Apr': 4,'May': 5, 'Jun': 6, 'Jul': 7, 'Aug' :8 , 'Sep': 9 , 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
 df['Month_number'] = df['Month'].map(month_mapping)
-# Create dataframe of PAN INdia wec
 
-# PAN_India_wec = pd.DataFrame({
-#     'State': ['AP','GJ','KA-N','KA-S','MH','MP','RJ','TN'],
-#     'Total_wec' : [272,1398,836,377,538,233,1294,707]   
-# })
-
-# PAN_India_area_wec = pd.DataFrame(
-#     {
-#         'Area' : ['PENUKONDA','SINGANAMALA','TADPATRI','BHATIA','KUTCH','LALPUR','MAHIDAD','SAMANA','BELGAUM','GADAG','TADAS','C DURGA','HIRIYUR','JOGIHALLI','ANDRALK','CHVNSWR','KARAD','KHANAPUR','KHANDKE',"P'PATTA",'PATAN','DEWAS','MAHURIYA',"MANDSAUR",'BHAKHRANI','BHUKITA','RAJGARH','SIPLA','TEMDARI','TINWARI','DHARAPURAM','MANUR','MUPANDL','POOLAVADI','PUSHPATHUR',"V'KULAM",'SATARA'],
-#         'Total_wec' : [151,16,105,235,83,398,144,578,187,388,258,180,127,70,132,73,119,56,62,64,34,118,70,45,275,337,91,287,168,123,126,157,73,91,99,154,34]
-#     }
-# )
 
 # Creating Navbar Dashbaord and Excel File
 
@@ -129,208 +155,319 @@ if selected == "Dashboard":
         maincode = st.multiselect('Select Main code', options= df2['Main code'].unique())
         
     #  Creating Multi selection Filters for Site, WEC , Wec Type
-    Site,wec,wectype = st.columns(3)
+    Site,wec,wectype,year = st.columns(4)
     with Site:
         Site = st.multiselect('Select Site', options=df2['Site'].unique())
     with wec:
         wec = st.multiselect('Select WEC', options=df2['WEC'].unique())
     with wectype:
         wectype = st.multiselect('Select WEC Type', options=df2['WECType'].unique())
+    with year:
+        year = st.multiselect('Select Year', options=df2['Year'].unique())
     
 
     #  Creating different combination for filtered dataframe by selecting State, Area , Month and Maincode
     
-    if not state and not area and not month and not maincode and not Site and not wec and not wectype:
+    if not state and not area and not month and not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df1.copy()
         #  grouping of single selection
-    elif not area and not month and not maincode and not Site and not wec and not wectype:
+    elif not area and not month and not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df1[df1['State'].isin(state)]
-    elif not state and not month and not maincode and not Site and not wec and not wectype:
+    elif not state and not month and not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area)]
-    elif not state and not area and not maincode and not Site and not wec and not wectype:
+    elif not state and not area and not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['Month'].isin(month)]
-    elif not state and not area and not month and not Site and not wec and not wectype:
+    elif not state and not area and not month and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['Main code'].isin(maincode)]
-    elif not state and not area and not month and not maincode and not wec and not wectype:
+    elif not state and not area and not month and not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['Site'].isin(Site)]
-    elif not state and not area and not month and not maincode and not Site and not wectype:
+    elif not state and not area and not month and not maincode and not Site and not wectype and not year:
         filtered_df = df2[df2['WEC'].isin(wec)]  
-    elif not state and not area and not month and not maincode and not Site and not wec:
+    elif not state and not area and not month and not maincode and not Site and not wec and not year:
         filtered_df = df2[df2['WECType'].isin(wectype)] 
+    elif not state and not area and not month and not maincode and not Site and not wec and not wectype:
+        filtered_df = df2[df2['Year'].isin(year)]
         
      #  grouping of 2 selection     
-    elif not month and not maincode and not Site and not wec and not wectype:
+    elif not month and not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area)]
-    elif not state and not maincode and not Site and not wec and not wectype:
+    elif not state and not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month)]
-    elif not state and not area and not Site and not wec and not wectype:
+    elif not state and not area and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode)]
-    elif not state and not area and not month and not wec and not wectype:
+    elif not state and not area and not month and not wec and not wectype and not year:
         filtered_df = df2[df2['Site'].isin(Site) & df2['Main code'].isin(maincode)]
-    elif not state and not area and not month and not maincode and not wectype:
+    elif not state and not area and not month and not maincode and not wectype and not year:
         filtered_df = df2[df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
-    elif not state and not area and not month and not maincode and not Site:
+    elif not state and not area and not month and not maincode and not Site and not year:
         filtered_df = df2[df2['WECType'].isin(wectype) & df2['WEC'].isin(wec)]
+    elif not state and not area and not month and not maincode and not Site and not wec:
+        filtered_df = df2[df2['WECType'].isin(wectype) & df2['Year'].isin(year)]
         
-    elif not area and not maincode and not Site and not wec and not wectype:
+    elif not area and not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Month'].isin(month)]
-    elif not area and not month and not Site and not wec and not wectype:
+    elif not area and not month and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Main code'].isin(maincode)]
-    elif not area and not month and not maincode and not wec and not wectype:
+    elif not area and not month and not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Site'].isin(Site)]
-    elif not area and not month and not maincode and not Site and not wectype:
+    elif not area and not month and not maincode and not Site and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['WEC'].isin(wec)]
-    elif not area and not month and not maincode and not Site and not wec:
+    elif not area and not month and not maincode and not Site and not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['WECType'].isin(wectype)]
+    elif not area and not month and not maincode and not Site and not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Year'].isin(year)]
     
-    elif not state and not month and not Site and not wec and not wectype:
+    elif not state and not month and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Main code'].isin(maincode)]
-    elif not state and not month and not maincode and not wec and not wectype:
+    elif not state and not month and not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Site'].isin(Site)]
-    elif not state and not month and not maincode and not Site and not wectype:
+    elif not state and not month and not maincode and not Site and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['WEC'].isin(wec)]
-    elif not state and not month and not maincode and not Site and not wec:
+    elif not state and not month and not maincode and not Site and not wec and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['WECType'].isin(wectype)]
+    elif not state and not month and not maincode and not Site and not wec and not wectype:
+        filtered_df = df2[df2['Area'].isin(area) & df2['Year'].isin(year)]
     
-    elif not state and not month and not area and not Site and not wectype:
+    elif not state and not month and not area and not wec and not wectype and not year:
+        filtered_df = df2[df2['Main code'].isin(maincode) & df2['Site'].isin(Site)]
+    elif not state and not month and not area and not Site and not wectype and not year:
         filtered_df = df2[df2['Main code'].isin(maincode) & df2['WEC'].isin(wec)]
-    elif not state and not month and not area and not Site and not wec:
+    elif not state and not month and not area and not Site and not wec and not year:
         filtered_df = df2[df2['Main code'].isin(maincode) & df2['WECType'].isin(wectype)]
+    elif not state and not month and not area and not Site and not wec and not wectype:
+        filtered_df = df2[df2['Main code'].isin(maincode) & df2['Year'].isin(year)]
     
-    elif not state and not area and not maincode and not wec and not wectype:
+    elif not state and not area and not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['Site'].isin(Site) & df2['Month'].isin(month)]
-    elif not state and not area and not maincode and not wec and not month:
+    elif not state and not area and not maincode and not wec and not month and not year:
         filtered_df = df2[df2['Site'].isin(Site) & df2['WECType'].isin(wectype)]
+    elif not state and not area and not maincode and not wectype and not month and not year:
+        filtered_df = df2[df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
+    elif not state and not area and not maincode and not wectype and not month and not wec:
+        filtered_df = df2[df2['Site'].isin(Site) & df2['Year'].isin(year)]
     
-    elif not state and not area and not maincode and not wectype and not Site:
+    elif not state and not area and not maincode and not wectype and not Site and not year:
         filtered_df = df2[df2['WEC'].isin(wec) & df2['Month'].isin(month)]
-    elif not state and not area and not month and not wectype and not Site:
+    elif not state and not area and not month and not wectype and not Site and not year:
         filtered_df = df2[df2['WEC'].isin(wec) & df2['Main code'].isin(maincode)]
+    elif not state and not area and not month and not maincode and not Site and not year:
+        filtered_df = df2[df2['WEC'].isin(wec) & df2['WECType'].isin(wectype)]
+    elif not state and not area and not month and not maincode and not Site and not wectype:
+        filtered_df = df2[df2['WEC'].isin(wec) & df2['Year'].isin(year)]
         
-    elif not state and not area and not maincode and not wec and not Site:
+    elif not state and not area and not maincode and not wec and not Site and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['WECType'].isin(wectype)]
-    elif not state and not area and not month and not wec and not Site:
+    elif not state and not area and not month and not wec and not Site and not year:
         filtered_df = df2[df2['Main code'].isin(maincode) & df2['WECType'].isin(wectype)]
-    
+    elif not state and not area and not month and not wec and not Site and not maincode and not year:
+        filtered_df = df2[df2['Year'].isin(year) & df2['WECType'].isin(wectype)]
+    elif not state and not area and not wectype and not wec and not Site and not maincode:
+        filtered_df = df2[df2['Year'].isin(year) & df2['Month'].isin(month)]
+
     #  grouping of 3 selection  
-    elif not maincode and not Site and not wec and not wectype:
+    elif not maincode and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month)]
-    elif not month and not Site and not wec and not wectype:
+    elif not month and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Main code'].isin(maincode)]
-    elif not month and not maincode and not wec and not wectype:
+    elif not month and not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Site'].isin(Site)]
-    elif not month and not maincode and not Site and not wectype:
+    elif not month and not maincode and not Site and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['WEC'].isin(wec)]
-    elif not month and not maincode and not Site and not wec:
+    elif not month and not maincode and not Site and not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['WECType'].isin(wectype)]
-    elif not area and not Site and not wec and not wectype:
+    elif not month and not maincode and not Site and not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Year'].isin(year)]
+    elif not area and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Month'].isin(month) & df2['Main code'].isin(maincode)]
-    elif not area and not maincode and not wec and not wectype:
+    elif not area and not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Month'].isin(month) & df2['Site'].isin(Site)]
-    elif not area and not maincode and not Site and not wectype:
+    elif not area and not maincode and not Site and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Month'].isin(month) & df2['WEC'].isin(wec)]
-    elif not area and not maincode and not Site and not wec:
+    elif not area and not maincode and not Site and not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Month'].isin(month) & df2['WECType'].isin(wectype)]
-    elif not area and not month and not wec and not wectype:
+    elif not area and not maincode and not Site and not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Month'].isin(month) & df2['Year'].isin(year)]
+    elif not area and not month and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Site'].isin(Site) & df2['Main code'].isin(maincode)]
-    elif not area and not month and not Site and not wectype:
+    elif not area and not month and not Site and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['WEC'].isin(wec) & df2['Main code'].isin(maincode)]
-    elif not area and not month and not Site and not wec:
+    elif not area and not month and not Site and not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['WECType'].isin(wectype) & df2['Main code'].isin(maincode)]
-    elif not area and not month and not maincode and not wectype:
+    elif not area and not month and not Site and not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Year'].isin(year) & df2['Main code'].isin(maincode)]
+        
+    elif not area and not month and not maincode and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
-    elif not area and not month and not maincode and not wec:
+    elif not area and not month and not maincode and not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Site'].isin(Site) & df2['WECType'].isin(wectype)]
-    elif not area and not month and not maincode and not Site:
+    elif not area and not month and not maincode and not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Site'].isin(Site) & df2['Year'].isin(year)]
+        
+    elif not area and not month and not maincode and not Site and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['WECType'].isin(wectype) & df2['WEC'].isin(wec)]
-
-    
-    elif not state and not Site and not wec and not wectype:
+    elif not area and not month and not maincode and not Site and not wec:
+        filtered_df = df2[df2['State'].isin(state) & df2['WECType'].isin(wectype) & df2['Year'].isin(year)]
+    elif not area and not month and not maincode and not Site and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
+        
+    elif not state and not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode)]
-    elif not state and not maincode and not wec and not wectype:
+    elif not state and not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Site'].isin(Site)]
-    elif not state and not maincode and not Site and not wectype:
+    elif not state and not maincode and not Site and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['WEC'].isin(wec)]
-    elif not state and not maincode and not Site and not wec:
+    elif not state and not maincode and not Site and not wec and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['WECType'].isin(wectype)]
-    elif not state and not month and not wec and not wectype:
+    elif not state and not maincode and not Site and not wec and not wectype:
+        filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Year'].isin(year)]
+        
+    elif not state and not month and not wec and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Site'].isin(Site) & df2['Main code'].isin(maincode)]
-    elif not state and not month and not Site and not wectype:
+    elif not state and not month and not Site and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['WEC'].isin(wec) & df2['Main code'].isin(maincode)]
-    elif not state and not month and not Site and not wec:
+    elif not state and not month and not Site and not wec and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['WECType'].isin(wectype) & df2['Main code'].isin(maincode)]
-    elif not state and not month and not maincode and not wectype:
+    elif not state and not month and not Site and not wec and not wectype:
+        filtered_df = df2[df2['Area'].isin(area) & df2['Year'].isin(year) & df2['Main code'].isin(maincode)]
+        
+    elif not state and not month and not maincode and not wectype and not year :
         filtered_df = df2[df2['Area'].isin(area) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
-    elif not state and not month and not maincode and not wec:
+    elif not state and not month and not maincode and not wec and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Site'].isin(Site) & df2['WECType'].isin(wectype)]
-    elif not state and not month and not maincode and not Site:
+    elif not state and not month and not maincode and not wec and not wectype:
+        filtered_df = df2[df2['Area'].isin(area) & df2['Site'].isin(Site) & df2['Year'].isin(year)]
+    
+    elif not state and not month and not maincode and not Site and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['WECType'].isin(wectype) & df2['WEC'].isin(wec)]
-
-    elif not state and not area and not wec and not wectype:
+    elif not state and not month and not maincode and not Site and not wec:
+        filtered_df = df2[df2['Area'].isin(area) & df2['WECType'].isin(wectype) & df2['Year'].isin(year)]
+    elif not state and not month and not maincode and not Site and not wectype:
+        filtered_df = df2[df2['Area'].isin(area) & df2['WEC'].isin(year) & df2['Year'].isin(year)]
+        
+    elif not state and not area and not wec and not wectype and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site)]
-    elif not state and not area and not wec and not Site:
+    elif not state and not area and not wec and not Site and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['WECType'].isin(wectype)]
-    elif not state and not area and not wectype and not Site:
+    elif not state and not area and not wectype and not Site and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['WEC'].isin(wec)]
-    elif not state and not area and not maincode and not wectype:
+    elif not state and not area and not wectype and not Site and not wec:
+        filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Year'].isin(year)]
+    elif not state and not area and not maincode and not wectype and not year :
         filtered_df = df2[df2['Month'].isin(month) & df2['WEC'].isin(wec) & df2['Site'].isin(Site)]
-    elif not state and not area and not maincode and not wec:
+    elif not state and not area and not maincode and not wec and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['WECType'].isin(wectype) & df2['Site'].isin(Site)]
-    elif not state and not area and not maincode and not Site:
+    elif not state and not area and not maincode and not wec and not wectype:
+        filtered_df = df2[df2['Month'].isin(month) & df2['Year'].isin(year) & df2['Site'].isin(Site)]
+        
+    elif not state and not area and not maincode and not Site and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['WEC'].isin(wec) & df2['WECType'].isin(wectype)]
+    elif not state and not area and not maincode and not Site and not wectype:
+        filtered_df = df2[df2['Month'].isin(month) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
+    elif not state and not area and not maincode and not Site and not wec:
+        filtered_df = df2[df2['Month'].isin(month) & df2['WECType'].isin(wectype) & df2['Year'].isin(year)]
 
-    elif not state and not area and not month and not wectype:
+    elif not state and not area and not month and not wectype and not year:
         filtered_df = df2[df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
-    elif not state and not area and not month and not wec:
+    elif not state and not area and not month and not wec and not year:
         filtered_df = df2[df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WECType'].isin(wectype)]
-    elif not state and not area and not month and not maincode:
+    elif not state and not area and not month and not wec and not wectype:
+        filtered_df = df2[df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['Year'].isin(year)]
+    elif not state and not area and not month and not Site and not year:
+        filtered_df = df2[df2['Main code'].isin(maincode) & df2['WEC'].isin(wec) & df2['WECType'].isin(wectype)]
+    elif not state and not area and not month and not Site and not wectype:
+        filtered_df = df2[df2['Main code'].isin(maincode) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
+    elif not state and not area and not month and not Site and not wec:
+        filtered_df = df2[df2['Main code'].isin(maincode) & df2['WECType'].isin(wectype) & df2['Year'].isin(year)]
+        
+    elif not state and not area and not month and not maincode and not year:
         filtered_df = df2[df2['WEC'].isin(wec) & df2['Site'].isin(Site) & df2['WECType'].isin(wectype)]
+    elif not state and not area and not month and not maincode and not wectype:
+        filtered_df = df2[df2['WEC'].isin(wec) & df2['Site'].isin(Site) & df2['Year'].isin(year)]
+    elif not state and not area and not month and not maincode and not Site:
+        filtered_df = df2[df2['WEC'].isin(wec) & df2['WECType'].isin(wectype) & df2['Year'].isin(year)]
     
     # grouping of 4 selection 
-    elif not Site and not wec and not wectype:
+    elif not Site and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode)]
-    elif not maincode and not wec and not wectype:
+    elif not maincode and not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Site'].isin(Site)]
-    elif not maincode and not Site and not wectype:
+    elif not maincode and not Site and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['WEC'].isin(wec)]
-    elif not maincode and not Site and not wec:
+    elif not maincode and not Site and not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['WECType'].isin(wectype)]
-    elif not state and not wectype and not wec:
+    elif not maincode and not Site and not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Year'].isin(year)]
+        
+    elif not state and not wectype and not wec and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site)]
-    elif not state and not wectype and not Site:
+    elif not state and not wectype and not Site and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['WEC'].isin(wec)]
-    elif not state and not wec and not Site:
+    elif not state and not wec and not Site and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['WECType'].isin(wectype)]
-    elif not state and not wectype and not area:
+    elif not state and not wec and not Site and not wectype:
+        filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Year'].isin(year)]
+        
+    elif not state and not wectype and not area and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
-    elif not state and not wec and not area:
+    elif not state and not wec and not area and not year:
         filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WECType'].isin(wectype)]
-    elif not state and not month and not area:
+    elif not state and not wec and not area and not wectype:
+        filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['Year'].isin(year)]
+        
+    elif not state and not month and not area and not year:
         filtered_df = df2[ df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['WECType'].isin(wectype)]
+    elif not state and not month and not area and not wectype:
+        filtered_df = df2[ df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
+    elif not state and not month and not area and not maincode:
+        filtered_df = df2[ df2['WECType'].isin(wectype) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
     
     # group of 5 selection
-    elif not wec and not wectype:
+    elif not wec and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site)]
-    elif not Site and not wectype:
+    elif not Site and not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['WEC'].isin(wec)]
-    elif not Site and not wec:
+    elif not Site and not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['WECType'].isin(wectype)]
-    elif not state and not wectype:
+    elif not Site and not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Year'].isin(year)]
+    elif not state and not wectype and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
-    elif not state and not wec:
+    elif not state and not wec and not year:
         filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WECType'].isin(wectype)]
-    elif not state and not area:
-        filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) &df2['WECType'].isin(wectype)]
+    elif not state and not wec and not wectype:
+        filtered_df = df2[df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['Year'].isin(year)]
+        
+    elif not state and not area and not year:
+        filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['WECType'].isin(wectype)]
+    elif not state and not area and not wectype:
+        filtered_df = df2[df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
+    elif not state and not area and not month:
+        filtered_df = df2[df2['WECType'].isin(wectype) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
+    
     
     #  group of 6 selection
-    elif not wectype:
+    elif not wectype and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
-    elif not wec:
+    elif not wec and not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WECtype'].isin(wectype)]
+    elif not wec and not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['Year'].isin(year)]
+    elif not state and not year:
+        filtered_df = df2[df2['WECType'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
+    elif not state and not wectype:
+        filtered_df = df2[df2['Year'].isin(year) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
+    elif not state and not area:
+        filtered_df = df2[df2['Year'].isin(year) & df2['WECType'].isin(wectype) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec)]
         
     # group of 7 selection 
-    else:
+    elif not year:
         filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['WECType'].isin(wectype)]
+    elif not wectype:
+        filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['Year'].isin(year)]
+    # group of 8 selection
+    else:
+        filtered_df = df2[df2['State'].isin(state) & df2['Area'].isin(area) & df2['Month'].isin(month) & df2['Main code'].isin(maincode) & df2['Site'].isin(Site) & df2['WEC'].isin(wec) & df2['WECType'].isin(wectype) & df2['Year'].isin(year)]
+    
     
     #  Obtain KPI values from filtered df Sum of freq, Count of freq and Freq per count
     
@@ -394,7 +531,6 @@ if selected == "Dashboard":
     else:
         current_month = 12
         previuos_month = 11
-    
     
     # Calculate MoM sum of Frequency deviation
     current_month_sum_of_freq = df2['Frequency'][df2['Month_number']==(current_month)].sum()
@@ -472,7 +608,7 @@ if selected == "Dashboard":
         'WEC': 'count'
     })
 
-    month_mapping = { 'Jan': 1,'Feb':2,'Mar':3, 'Apr': 4,'May': 5, 'Jun': 6, 'Jul': 7, 'Aug' :8 , 'Sept': 9 , 'Oct': 10, 'Nov': 11, 'Dec': 12}
+    month_mapping = { 'Jan': 1,'Feb':2,'Mar':3, 'Apr': 4,'May': 5, 'Jun': 6, 'Jul': 7, 'Aug' :8 , 'Sep': 9 , 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
     monthwise_fault['month_num'] = monthwise_fault['Month'].map(month_mapping)
 
@@ -506,7 +642,7 @@ if selected == "Dashboard":
     
     # Repeated fault continue 3 month
 
-    repeated_fault_df = df.pivot_table(index=['State','Area','WEC','StatusCode'],columns='Month', values='Frequency', aggfunc='sum', margins=True, margins_name='Sum of Frequency').sort_values('Sum of Frequency', ascending=False).iloc[1:]
+    repeated_fault_df = df.pivot_table(index=['State','Area','WEC','StatusCode','Year'],columns='Month', values='Frequency', aggfunc='sum', margins=True, margins_name='Sum of Frequency').sort_values('Sum of Frequency', ascending=False).iloc[1:]
     
     
     repeated_fault_df = repeated_fault_df[repeated_fault_df['Sum of Frequency']>50]
@@ -519,59 +655,59 @@ if selected == "Dashboard":
         ((repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0)) |
         ((repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0)) |
         ((repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) | 
-        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0))| 
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0)) |
-        ((repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) | 
+        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0))| 
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0)) |
+        ((repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) | 
         ((repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0)) |
         ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0)) |
         ((repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) )| 
         ((repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) )|
         ((repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
         ((repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
-        ((repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0)) |  
-        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0)) | 
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
-        ((repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0)) |
+        ((repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0)) |  
+        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0)) | 
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
+        ((repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0)) |
         
         
         ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0)) |
         ((repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0)) |
         ((repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
         ((repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
-        ((repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0)) |
-        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0)) |
+        ((repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0)) |
+        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0)) |
         ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0)) |
         ((repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) )|
         ((repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0))|
-        ((repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0))|
-        ((repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0))|
-        ((repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
-        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0))|
+        ((repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0))|
+        ((repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0))|
+        ((repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
+        ((repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0))|
 
         ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
         ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
-        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
+        ((repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0)) |
         ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
-        ((repeated_fault_df['Sept']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
-        ((repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
-        ((repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
-        ((repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
-        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0)) |
-        ((repeated_fault_df['Oct']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0)) |
-        ((repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0)) |
-        ((repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0)) |
-        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0)) |
-        ((repeated_fault_df['Nov']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0)) |
-        ((repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0)) |
-        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
-        ((repeated_fault_df['Dec']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
-        ((repeated_fault_df['Dec']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
-        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sept']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0)) 
+        ((repeated_fault_df['Sep']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
+        ((repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
+        ((repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
+        ((repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0)) |
+        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0)) |
+        ((repeated_fault_df['Oct']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0)) |
+        ((repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0)) |
+        ((repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0)) |
+        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0)) |
+        ((repeated_fault_df['Nov']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0)) |
+        ((repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0)) |
+        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
+        ((repeated_fault_df['Dec']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
+        ((repeated_fault_df['Dec']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0)) |
+        ((repeated_fault_df['Jan']>0) & (repeated_fault_df['Feb']>0) & (repeated_fault_df['Mar']>0) & (repeated_fault_df['Apr']>0) & (repeated_fault_df['May']>0) & (repeated_fault_df['Jun']>0) & (repeated_fault_df['Jul']>0) & (repeated_fault_df['Aug']>0) & (repeated_fault_df['Sep']>0) & (repeated_fault_df['Oct']>0) & (repeated_fault_df['Nov']>0) & (repeated_fault_df['Dec']>0)) 
         ),'repeated','not repeated')
     
     repeated_fault_df = repeated_fault_df[repeated_fault_df['Fault repeated continue > 3 months']=='repeated']
@@ -684,6 +820,22 @@ if selected == "Dashboard":
     st.download_button(label='Download Data',data=csv,file_name='Repeated fault continue more than 3 months.csv',mime='text/csv',help="click here to download Repeated fault continue more than 3 months")
 
 else:
-    st.dataframe(df,height=450)
-    csv = df.to_csv(index=False, encoding='utf-8')
+    df['Date'] = pd.to_datetime(df['Date'],format="%d-%m-%y")
+    df['Date'] = df['Date'].map(datetime.datetime.date)
+    start_date = pd.to_datetime(df['Date']).min()
+    end_date = pd.to_datetime(df['Date']).max()
+
+    startdate,enddate = st.columns(2)
+    
+    with startdate:
+        startingdate = st.date_input("Enter start date", start_date)
+    with enddate:
+        endingdate = st.date_input("Enter end date", end_date)
+        
+    newdf = df[(df['Date']>= startingdate) & (df['Date']<= endingdate)]
+    
+    new_df = newdf.head(100)
+    st.dataframe(new_df, height=200, hide_index=True)
+    
+    csv = newdf.to_csv(index=False, encoding='utf-8')
     st.download_button('Download file',data=csv,file_name='Repeated fault.csv', mime='text/csv',help='click here to download the data')
