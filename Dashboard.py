@@ -39,7 +39,7 @@ with open('style.css') as f:
 
 @st.cache_data
 def read_csv_file1():
-    select_file= 'Repeated fault 2021.csv'
+    select_file= 'Repeated fault 2022.csv'
     df1 = pd.read_csv(select_file, encoding='ISO-8859-1', dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
     #  convert duration object type into int type into Hour, Min and sec column
 
@@ -51,7 +51,7 @@ def read_csv_file1():
 
 @st.cache_data
 def read_csv_file2():
-    select_file = 'Repeated fault 2022.csv'
+    select_file = 'Repeated fault 2023.csv'
     df2 = pd.read_csv(select_file,encoding='ISO-8859-1', dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
     #  convert duration object type into int type into Hour, Min and sec column
 
@@ -63,7 +63,7 @@ def read_csv_file2():
 
 @st.cache_data
 def read_csv_file3():
-    select_file = 'Repeated fault 2023.csv'
+    select_file = 'Repeated fault 2024.csv'
     df3 = pd.read_csv(select_file,encoding='ISO-8859-1', dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
     #  convert duration object type into int type into Hour, Min and sec column
 
@@ -73,17 +73,17 @@ def read_csv_file3():
 
     return df3
 
-@st.cache_data
-def read_csv_file4():
-    select_file = 'Repeated fault 2024.csv'
-    df4 = pd.read_csv(select_file,encoding='ISO-8859-1',dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
-    #  convert duration object type into int type into Hour, Min and sec column
+# @st.cache_data
+# def read_csv_file4():
+#     select_file = 'Repeated fault 2024.csv'
+#     df4 = pd.read_csv(select_file,encoding='ISO-8859-1',dtype={'Main code' : str, 'Sub code' : str, 'Frequency': int})
+#     #  convert duration object type into int type into Hour, Min and sec column
 
-    df4['Hour'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.hour
-    df4['Min'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.minute
-    df4['Sec'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.second
+#     df4['Hour'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.hour
+#     df4['Min'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.minute
+#     df4['Sec'] = pd.to_datetime(df4['Duration'],format=('%H:%M:%S')).dt.second
 
-    return df4
+#     return df4
 
 @st.cache_data
 def read_area_wec_file():
@@ -93,10 +93,9 @@ def read_area_wec_file():
 df1 = read_csv_file1()
 df2 = read_csv_file2()
 df3 = read_csv_file3()
-df4 = read_csv_file4()
 PAN_India_wec_df = read_area_wec_file()
 
-df = pd.concat([df1,df2,df3,df4],axis=0,ignore_index=True)
+df = pd.concat([df1,df2,df3],axis=0,ignore_index=True)
 
 df['StatusCode'] = df['Main code'].str.cat(df['Sub code'], sep=':')
 
